@@ -46,6 +46,8 @@ nav ul{display:flex;gap:28px;list-style:none;font-family:var(--mono);font-size:.
 nav ul a{color:var(--muted);transition:color .2s,text-shadow .2s}
 nav ul a:hover{color:var(--cyan);text-shadow:0 0 10px var(--cyan)}
 nav ul a span{color:var(--pink)}
+nav ul a.nav-cv{color:var(--lime);border:1px solid rgba(182,255,59,.45);padding:5px 12px;border-radius:8px;margin-top:-5px;display:inline-block}
+nav ul a.nav-cv:hover{background:var(--lime);color:#000;text-shadow:none;box-shadow:0 0 18px var(--lime)}
 @media (max-width:760px){nav ul{display:none}}
 
 /* ---------- layout ---------- */
@@ -212,6 +214,7 @@ footer span{color:var(--pink)}
     <li><a href="#projects"><span>03.</span> projects</a></li>
     <li><a href="#skills"><span>04.</span> skills</a></li>
     <li><a href="#contact"><span>05.</span> contact</a></li>
+    <li><a class="nav-cv" href="Aneesa-Atther-Resume.pdf" download>resume ⤓</a></li>
   </ul>
 </nav>
 
@@ -227,7 +230,7 @@ footer span{color:var(--pink)}
       <div class="cta">
         <a class="btn" href="#projects">view projects →</a>
         <a class="btn pink" href="https://github.com/Aneesa-atther" target="_blank" rel="noopener">github ↗</a>
-        <a class="btn ghost" href="#contact">say hello</a>
+        <a class="btn ghost" href="Aneesa-Atther-Resume.pdf" download>⤓ resume.pdf</a>
       </div>
     </div>
 
@@ -419,6 +422,7 @@ footer span{color:var(--pink)}
     <div class="socials">
       <a class="btn" href="https://github.com/Aneesa-atther" target="_blank" rel="noopener">github ↗</a>
       <a class="btn pink" href="mailto:annuatther629@gmail.com">email ↗</a>
+      <a class="btn ghost" href="Aneesa-Atther-Resume.pdf" download>⤓ download resume</a>
     </div>
   </section>
 </main>

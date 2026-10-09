@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aneesa Atther · AI Evaluation Engineer</title>
+<meta name="description" content="Aneesa Atther: LLM evaluation and benchmark design, reward-hack analysis, and GenAI Android development. Bangalore, India.">
+<meta property="og:title" content="Aneesa Atther · AI Evaluation Engineer">
+<meta property="og:description" content="I stress-test AI so it can't cheat. LLM evaluation, benchmark design and GenAI Android apps.">
+<meta name="theme-color" content="#05050a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2305050a'/><text x='32' y='43' font-family='monospace' font-size='30' font-weight='700' text-anchor='middle' fill='%2300f0ff'>A</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05050a; --bg2:#0b0b14; --card:rgba(14,14,26,.72); --line:rgba(255,255,255,.08);
+  --text:#e9e9f2; --muted:#8b8ba3;
+  --cyan:#00f0ff; --pink:#ff2bd6; --lime:#b6ff3b; --violet:#8b5cff;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --sans:"Space Grotesk",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--pink);color:#000}
+
+/* ---------- background layers ---------- */
+#grid{position:fixed;inset:0;z-index:-3;width:100%;height:100%}
+.noise{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.scan{position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(0,0,0,.18) 2px 3px)}
+#spot{position:fixed;z-index:-2;width:520px;height:520px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(0,240,255,.13),rgba(255,43,214,.06) 40%,transparent 70%);
+  transform:translate(-50%,-50%);left:50%;top:30%;transition:opacity .3s}
+
+/* ---------- nav ---------- */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;
+  padding:16px clamp(16px,5vw,64px);backdrop-filter:blur(12px);background:rgba(5,5,10,.55);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--mono);font-weight:700;letter-spacing:.5px}
+.logo b{color:var(--cyan);text-shadow:0 0 12px var(--cyan)}
+.logo i{font-style:normal;color:var(--pink);animation:blink 1s steps(1) infinite}
+nav ul{display:flex;gap:28px;list-style:none;font-family:var(--mono);font-size:.82rem}
+nav ul a{color:var(--muted);transition:color .2s,text-shadow .2s}
+nav ul a:hover{color:var(--cyan);text-shadow:0 0 10px var(--cyan)}
+nav ul a span{color:var(--pink)}
+@media (max-width:760px){nav ul{display:none}}
+
+/* ---------- layout ---------- */
+section{padding:110px clamp(16px,6vw,96px);max-width:1240px;margin:0 auto;position:relative}
+.label{font-family:var(--mono);font-size:.8rem;color:var(--pink);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.label::before{content:"// ";color:var(--muted)}
+h2{font-size:clamp(2rem,4.5vw,3.2rem);line-height:1.1;margin-bottom:40px;font-weight:700}
+h2 em{font-style:normal;background:linear-gradient(90deg,var(--cyan),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---------- hero ---------- */
+.hero{min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding-top:120px}
+@media (max-width:960px){.hero{grid-template-columns:1fr;padding-top:110px}}
+.status{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.78rem;color:var(--lime);
+  border:1px solid rgba(182,255,59,.35);padding:6px 14px;border-radius:999px;background:rgba(182,255,59,.06);margin-bottom:26px}
+.status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime);animation:pulse 1.6s infinite}
+.hello{font-family:var(--mono);color:var(--muted);font-size:1rem;margin-bottom:6px}
+.name{font-size:clamp(3.2rem,9vw,6.6rem);line-height:.95;font-weight:700;letter-spacing:-2px;position:relative;display:inline-block}
+.glitch{position:relative;color:#fff;text-shadow:0 0 18px rgba(0,240,255,.55),0 0 42px rgba(255,43,214,.25)}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;inset:0;overflow:hidden}
+.glitch::before{color:var(--cyan);transform:translate(-2px,0);clip-path:inset(0 0 60% 0);animation:g1 3.2s infinite linear alternate-reverse;mix-blend-mode:screen}
+.glitch::after{color:var(--pink);transform:translate(2px,0);clip-path:inset(55% 0 0 0);animation:g2 2.7s infinite linear alternate-reverse;mix-blend-mode:screen}
+.role{font-family:var(--mono);font-size:clamp(1rem,2.2vw,1.3rem);margin:22px 0 18px;min-height:1.6em;color:var(--cyan)}
+.role::before{content:"> ";color:var(--pink)}
+.role .cursor{display:inline-block;width:.6em;height:1.1em;background:var(--cyan);vertical-align:-3px;margin-left:2px;box-shadow:0 0 10px var(--cyan);animation:blink 1s steps(1) infinite}
+.tagline{font-size:1.15rem;color:#c9c9dc;max-width:560px}
+.tagline strong{color:#fff}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+.btn{font-family:var(--mono);font-size:.88rem;padding:13px 22px;border-radius:10px;border:1px solid var(--cyan);color:var(--cyan);
+  position:relative;transition:all .25s;background:rgba(0,240,255,.04)}
+.btn:hover{background:var(--cyan);color:#000;box-shadow:0 0 24px var(--cyan),0 0 60px rgba(0,240,255,.35)}
+.btn.pink{border-color:var(--pink);color:var(--pink);background:rgba(255,43,214,.05)}
+.btn.pink:hover{background:var(--pink);color:#000;box-shadow:0 0 24px var(--pink),0 0 60px rgba(255,43,214,.35)}
+.btn.ghost{border-color:var(--line);color:var(--text)}
+.btn.ghost:hover{border-color:var(--lime);color:#000;background:var(--lime);box-shadow:0 0 24px var(--lime)}
+
+/* terminal */
+.term{background:rgba(8,8,16,.85);border:1px solid rgba(0,240,255,.25);border-radius:14px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,43,214,.08),0 0 40px rgba(0,240,255,.12),0 30px 80px rgba(0,0,0,.6);font-family:var(--mono);font-size:.82rem}
+.term-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+.term-bar i{width:11px;height:11px;border-radius:50%;display:block}
+.term-bar i:nth-child(1){background:#ff5f57}.term-bar i:nth-child(2){background:#febc2e}.term-bar i:nth-child(3){background:#28c840}
+.term-bar span{margin-left:10px;color:var(--muted);font-size:.75rem}
+.term-body{padding:18px 20px 22px;min-height:330px;white-space:pre-wrap;line-height:1.75}
+.t-p{color:var(--pink)}.t-c{color:var(--cyan)}.t-l{color:var(--lime)}.t-m{color:var(--muted)}.t-w{color:#fff;font-weight:700}
+.t-pass{background:var(--lime);color:#000;padding:1px 8px;border-radius:4px;font-weight:700;box-shadow:0 0 14px var(--lime)}
+
+/* ---------- stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;padding-top:0}
+@media (max-width:960px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:22px 18px;text-align:center;position:relative;overflow:hidden}
+.stat::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--c,var(--cyan)),transparent)}
+.stat b{display:block;font-family:var(--mono);font-size:clamp(1.8rem,3.4vw,2.4rem);color:var(--c,var(--cyan));text-shadow:0 0 18px var(--c,var(--cyan))}
+.stat span{font-size:.82rem;color:var(--muted)}
+
+/* ---------- about ---------- */
+.about{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:start}
+@media (max-width:900px){.about{grid-template-columns:1fr}}
+.about p{color:#c9c9dc;font-size:1.08rem;margin-bottom:18px}
+.about p strong{color:#fff}
+.hl-c{color:var(--cyan)}.hl-p{color:var(--pink)}.hl-l{color:var(--lime)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;backdrop-filter:blur(8px)}
+.kv{font-family:var(--mono);font-size:.86rem;display:grid;gap:12px}
+.kv div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding-bottom:10px}
+.kv div:last-child{border:none;padding:0}
+.kv dt{color:var(--muted)} .kv dd{color:#fff;text-align:right}
+
+/* ---------- experience timeline ---------- */
+.timeline{position:relative;margin-left:8px}
+.timeline::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:2px;
+  background:linear-gradient(var(--cyan),var(--pink),var(--lime));box-shadow:0 0 12px var(--cyan)}
+.job{position:relative;padding:0 0 46px 38px}
+.job:last-child{padding-bottom:0}
+.job::before{content:"";position:absolute;left:-7px;top:6px;width:16px;height:16px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--c);box-shadow:0 0 14px var(--c)}
+.job-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 20px;align-items:baseline}
+.job h3{font-size:1.35rem}
+.job h3 small{color:var(--c);font-weight:500}
+.when{font-family:var(--mono);font-size:.8rem;color:var(--muted);border:1px solid var(--line);padding:3px 10px;border-radius:999px}
+.sub{font-family:var(--mono);font-size:.82rem;color:var(--muted);margin:4px 0 12px}
+.job ul{list-style:none;display:grid;gap:8px;color:#c9c9dc}
+.job li{padding-left:22px;position:relative}
+.job li::before{content:"▹";position:absolute;left:0;color:var(--c)}
+.job li b{color:#fff;font-weight:600}
+
+/* ---------- projects ---------- */
+.projects{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+@media (max-width:860px){.projects{grid-template-columns:1fr}}
+.proj{--c:var(--cyan);position:relative;border-radius:18px;padding:1px;background:linear-gradient(140deg,var(--c),transparent 40%,transparent 60%,var(--c2,var(--pink)));
+  transition:transform .25s ease,box-shadow .25s ease;transform-style:preserve-3d}
+.proj:hover{box-shadow:0 0 40px -6px var(--c)}
+.proj-in{background:#0a0a14;border-radius:17px;padding:28px;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.proj-in::before{content:"";position:absolute;inset:0;background:radial-gradient(400px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.06),transparent 45%);pointer-events:none}
+.proj-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.icon{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:1.4rem;border:1px solid var(--c);box-shadow:0 0 18px -4px var(--c);background:rgba(255,255,255,.02)}
+.proj-links{display:flex;gap:10px}
+.proj-links a{font-family:var(--mono);font-size:.75rem;color:var(--muted);border:1px solid var(--line);padding:5px 10px;border-radius:8px;transition:all .2s}
+.proj-links a:hover{color:#000;background:var(--c);border-color:var(--c);box-shadow:0 0 16px var(--c)}
+.proj h3{font-size:1.4rem;margin-bottom:4px}
+.proj .kind{font-family:var(--mono);font-size:.75rem;color:var(--c);margin-bottom:14px;letter-spacing:1px;text-transform:uppercase}
+.proj p{color:#bdbdd2;font-size:.98rem;margin-bottom:16px}
+.proj ul{list-style:none;display:grid;gap:6px;margin-bottom:20px;color:#bdbdd2;font-size:.92rem}
+.proj li{padding-left:20px;position:relative}
+.proj li::before{content:"+";position:absolute;left:2px;color:var(--c);font-family:var(--mono)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.tag{font-family:var(--mono);font-size:.72rem;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:#d4d4e4}
+
+/* ---------- skills ---------- */
+.skills{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media (max-width:960px){.skills{grid-template-columns:1fr 1fr}}
+@media (max-width:620px){.skills{grid-template-columns:1fr}}
+.skill h4{font-family:var(--mono);font-size:.85rem;color:var(--c);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.skill h4::before{content:"";width:8px;height:8px;background:var(--c);box-shadow:0 0 10px var(--c);border-radius:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:.86rem;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.03);transition:all .2s;cursor:default}
+.chip:hover{border-color:var(--c);color:#fff;box-shadow:0 0 14px -2px var(--c);transform:translateY(-2px)}
+
+/* ---------- education / awards ---------- */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media (max-width:820px){.duo{grid-template-columns:1fr}}
+.card h3{font-size:1.2rem;margin-bottom:4px}
+.card .meta{font-family:var(--mono);font-size:.8rem;color:var(--muted);margin-bottom:14px}
+.big{font-family:var(--mono);font-size:2.6rem;font-weight:700;color:var(--lime);text-shadow:0 0 18px var(--lime);line-height:1}
+.award{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px dashed var(--line)}
+.award:last-child{border:none;padding-bottom:0}
+.medal{font-size:1.6rem;filter:drop-shadow(0 0 8px var(--pink))}
+.award b{display:block}.award span{color:var(--muted);font-size:.9rem}
+
+/* ---------- contact ---------- */
+.contact{text-align:center;padding-bottom:80px}
+.contact h2{margin-bottom:16px}
+.contact p{color:#c9c9dc;max-width:560px;margin:0 auto 34px;font-size:1.08rem}
+.mail{display:inline-block;font-family:var(--mono);font-size:clamp(1rem,3.4vw,1.7rem);color:#fff;padding:18px 30px;border-radius:14px;
+  border:1px solid var(--pink);box-shadow:0 0 30px -6px var(--pink),inset 0 0 30px -12px var(--pink);transition:all .25s;word-break:break-all}
+.mail:hover{background:var(--pink);color:#000;box-shadow:0 0 50px var(--pink)}
+.socials{display:flex;justify-content:center;gap:14px;margin-top:28px;flex-wrap:wrap}
+footer{text-align:center;font-family:var(--mono);font-size:.78rem;color:var(--muted);padding:28px 16px 40px;border-top:1px solid var(--line)}
+footer span{color:var(--pink)}
+
+/* ---------- reveal + keyframes ---------- */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease}
+.reveal.in{opacity:1;transform:none}
+@keyframes blink{50%{opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes g1{0%{clip-path:inset(0 0 85% 0)}20%{clip-path:inset(15% 0 60% 0)}40%{clip-path:inset(40% 0 40% 0)}60%{clip-path:inset(70% 0 10% 0)}80%{clip-path:inset(5% 0 80% 0)}100%{clip-path:inset(50% 0 30% 0)}}
+@keyframes g2{0%{clip-path:inset(80% 0 0 0)}25%{clip-path:inset(30% 0 50% 0)}50%{clip-path:inset(60% 0 20% 0)}75%{clip-path:inset(10% 0 75% 0)}100%{clip-path:inset(45% 0 35% 0)}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<canvas id="grid" aria-hidden="true"></canvas>
+<div id="spot" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
+<div class="noise" aria-hidden="true"></div>
+
+<nav>
+  <a href="#top" class="logo"><b>aneesa</b>.atther<i>_</i></a>
+  <ul>
+    <li><a href="#about"><span>01.</span> about</a></li>
+    <li><a href="#experience"><span>02.</span> experience</a></li>
+    <li><a href="#projects"><span>03.</span> projects</a></li>
+    <li><a href="#skills"><span>04.</span> skills</a></li>
+    <li><a href="#contact"><span>05.</span> contact</a></li>
+  </ul>
+</nav>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="status">open to AI / ML &amp; software roles</div>
+      <p class="hello">hi, my name is</p>
+      <h1 class="name"><span class="glitch" data-text="Aneesa Atther">Aneesa Atther</span></h1>
+      <p class="role" aria-live="polite"><span id="typed"></span><span class="cursor"></span></p>
+      <p class="tagline">I <strong>stress-test AI so it can't cheat.</strong> I design LLM benchmarks, hunt down reward hacks, build the verifiers that keep evaluations honest, and ship Android apps powered by GenAI.</p>
+      <div class="cta">
+        <a class="btn" href="#projects">view projects →</a>
+        <a class="btn pink" href="https://github.com/Aneesa-atther" target="_blank" rel="noopener">github ↗</a>
+        <a class="btn ghost" href="#contact">say hello</a>
+      </div>
+    </div>
+
+    <div class="term" role="img" aria-label="Terminal showing a verifier run that scores Aneesa's profile: all checks pass">
+      <div class="term-bar"><i></i><i></i><i></i><span>~/candidates — lbvs</span></div>
+      <div class="term-body" id="term"></div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats reveal" aria-label="Highlights">
+    <div class="stat"><b data-count="100" data-suffix="+">0</b><span>prompts authored &amp; evaluated</span></div>
+    <div class="stat" style="--c:var(--pink)"><b data-count="28">0</b><span>benchmark scenarios audited</span></div>
+    <div class="stat" style="--c:var(--lime)"><b data-count="2">0</b><span>novel exploit cruxes found</span></div>
+    <div class="stat" style="--c:var(--violet)"><b data-count="95" data-suffix="%+">0</b><span>QA accuracy, 50+ videos/day</span></div>
+    <div class="stat"><b data-count="8.06" data-dec="2">0</b><span>CGPA · B.E. AI &amp; ML</span></div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="reveal">
+    <p class="label">01 · about</p>
+    <h2>Making AI <em>honest</em> is my kind of puzzle.</h2>
+    <div class="about">
+      <div>
+        <p>I'm an <strong>AI &amp; Machine Learning engineer</strong> from Bangalore who works where <span class="hl-c">model quality</span> meets <span class="hl-p">software engineering</span>.</p>
+        <p>As an <strong>AI Trainer at the Handshake AI Fellowship</strong>, I write and evaluate prompts across technical domains, audit benchmark engines for loopholes, and build solvers that prove a task is as hard as it claims to be. If a model can pass a test without really solving it, I want to find that path first.</p>
+        <p>Before that, I built <strong>GenAI Android features</strong> with Kotlin, MVVM and the Gemini API. Now I validate <span class="hl-l">robotic training data</span> at Instawork. Across all of it, my focus is the same: <strong>trustworthy data, rigorous evaluation, and code that ships.</strong></p>
+      </div>
+      <div class="card">
+        <dl class="kv">
+          <div><dt>location</dt><dd>Bangalore, India</dd></div>
+          <div><dt>focus</dt><dd>LLM evaluation · benchmarks</dd></div>
+          <div><dt>also</dt><dd>Android · GenAI apps</dd></div>
+          <div><dt>degree</dt><dd>B.E. AI &amp; ML, 2026</dd></div>
+          <div><dt>languages</dt><dd>Python · Kotlin · Java</dd></div>
+          <div><dt>status</dt><dd class="hl-l">● available</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience" class="reveal">
+    <p class="label">02 · experience</p>
+    <h2>Where I've been <em>breaking things</em> (on purpose).</h2>
+    <div class="timeline">
+      <article class="job" style="--c:var(--cyan)">
+        <div class="job-head"><h3>AI Trainer <small>@ Handshake AI Fellowship</small></h3><span class="when">Jan 2026 – present</span></div>
+        <p class="sub">LLM Evaluation &amp; Benchmark Design · Contract · Remote</p>
+        <ul>
+          <li>Authored and evaluated <b>100+ domain-specific prompts</b> across <b>6 technical domains</b>, surfacing accuracy and depth gaps that fed directly into model retraining.</li>
+          <li>Audited a <b>28-scenario benchmark engine</b> and uncovered <b>2 novel exploit cruxes</b>, strengthening reward-hack resistance without disrupting existing tasks.</li>
+          <li>Advanced a constraint-satisfaction benchmark task to conditional approval by building a <b>working solver</b> that validated its difficulty computationally.</li>
+        </ul>
+      </article>
+      <article class="job" style="--c:var(--pink)">
+        <div class="job-head"><h3>QA Specialist <small>@ Instawork</small></h3><span class="when">Feb 2026 – present</span></div>
+        <p class="sub">Robotic Training Data</p>
+        <ul>
+          <li>Sustained <b>95%+ accuracy</b> validating <b>50+ robotic manipulation videos daily</b> with automated A–F scoring and Green/Yellow/Red classification.</li>
+          <li>Cut downstream data-quality issues by flagging low-confidence videos and documenting recurring clamp-operation defect patterns in daily and weekly reports.</li>
+        </ul>
+      </article>
+      <article class="job" style="--c:var(--lime)">
+        <div class="job-head"><h3>Android Developer <small>@ Mind Matrix</small></h3><span class="when">Feb 2026 – May 2026</span></div>
+        <p class="sub">Gen AI Applications</p>
+        <ul>
+          <li>Built core features of <b>Namma-Railu Buddy</b>, a GenAI Android app: GPS-based alarms and offline-first sync with Firebase, Room and Retrofit (MVVM).</li>
+          <li>Worked on <b>Gemini API</b> natural-language commuter assistance and led the technical requirements documentation for the release.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="reveal">
+    <p class="label">03 · projects</p>
+    <h2>Things I've <em>built</em>.</h2>
+    <div class="projects">
+      <article class="proj" style="--c:var(--cyan);--c2:var(--violet)">
+        <div class="proj-in">
+          <div class="proj-top"><div class="icon">✅</div>
+            <div class="proj-links"><a href="https://github.com/Aneesa-atther/llm-benchmark-verifier-suite" target="_blank" rel="noopener">code ↗</a></div></div>
+          <p class="kind">LLM evaluation</p>
+          <h3>LLM Benchmark Verifier Suite</h3>
+          <p>A rubric-driven harness that scores LLM outputs the same way every time, and catches answers that game the grader.</p>
+          <ul>
+            <li>Weighted rubrics with must-pass gates across 6 domain checklists</li>
+            <li>Hidden-test execution with a per-run nonce that can't be faked</li>
+            <li>AST scanner for early exits, test patching and hard-coded answers</li>
+          </ul>
+          <div class="tags"><span class="tag">Python</span><span class="tag">Pytest</span><span class="tag">AST</span><span class="tag">Prompt Engineering</span></div>
+        </div>
+      </article>
+
+      <article class="proj" style="--c:var(--pink);--c2:var(--cyan)">
+        <div class="proj-in">
+          <div class="proj-top"><div class="icon">🔍</div>
+            <div class="proj-links"><a href="https://github.com/Aneesa-atther/ai-code-review-assistant" target="_blank" rel="noopener">code ↗</a></div></div>
+          <p class="kind">AI developer tools</p>
+          <h3>AI Code Review Assistant</h3>
+          <p>A PR reviewer that pairs high-precision static analysis with Claude's reasoning to flag bugs and security issues before human review.</p>
+          <ul>
+            <li>14 AST rules plus Ruff and Bandit, limited to changed lines</li>
+            <li>The LLM confirms or dismisses each finding and adds the logic bugs linters miss</li>
+            <li>Posts PR comments and inline GitHub annotations</li>
+          </ul>
+          <div class="tags"><span class="tag">Python</span><span class="tag">Claude API</span><span class="tag">Static Analysis</span><span class="tag">GitHub Actions</span></div>
+        </div>
+      </article>
+
+      <article class="proj" style="--c:var(--lime);--c2:var(--cyan)">
+        <div class="proj-in">
+          <div class="proj-top"><div class="icon">🚆</div>
+            <div class="proj-links"><a href="https://github.com/Aneesa-atther/NammaRailuBuddy" target="_blank" rel="noopener">code ↗</a></div></div>
+          <p class="kind">GenAI Android</p>
+          <h3>Namma-Railu Buddy</h3>
+          <p>A commuter assistant for Bangalore rail travellers with location-aware alarms and Gemini-powered natural-language help.</p>
+          <ul>
+            <li>GPS-based arrival alarms so you never miss your stop</li>
+            <li>Offline-first sync with Room and Firebase</li>
+            <li>Natural-language assistance through the Gemini API</li>
+          </ul>
+          <div class="tags"><span class="tag">Kotlin</span><span class="tag">MVVM</span><span class="tag">Firebase</span><span class="tag">Room</span><span class="tag">Retrofit</span><span class="tag">Gemini</span></div>
+        </div>
+      </article>
+
+      <article class="proj" style="--c:var(--violet);--c2:var(--pink)">
+        <div class="proj-in">
+          <div class="proj-top"><div class="icon">⛓️</div>
+            <div class="proj-links"><a href="https://github.com/Aneesa-atther/Fake-Product-detection-using-QR-code-through-blockchain-system" target="_blank" rel="noopener">code ↗</a></div></div>
+          <p class="kind">Blockchain</p>
+          <h3>Fake Product Detection</h3>
+          <p>An authenticity verifier: scan a product's QR code and check it against a tamper-proof record on the blockchain.</p>
+          <ul>
+            <li>Unique product IDs backed by on-chain records</li>
+            <li>Immutable product-lifecycle tracking across the supply chain</li>
+            <li>Smart contracts tested with Truffle and Ganache</li>
+          </ul>
+          <div class="tags"><span class="tag">Solidity</span><span class="tag">Truffle</span><span class="tag">Ganache</span><span class="tag">React</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="reveal">
+    <p class="label">04 · skills</p>
+    <h2>My <em>toolkit</em>.</h2>
+    <div class="skills">
+      <div class="card skill" style="--c:var(--cyan)"><h4>AI / ML &amp; evaluation</h4><div class="chips">
+        <span class="chip">LLM Prompt Evaluation</span><span class="chip">RLHF</span><span class="chip">Model Benchmarking</span><span class="chip">Reward-Hack Analysis</span><span class="chip">Supervised Learning</span><span class="chip">EDA</span><span class="chip">Code Review &amp; Debugging</span></div></div>
+      <div class="card skill" style="--c:var(--pink)"><h4>languages</h4><div class="chips">
+        <span class="chip">Python</span><span class="chip">Java</span><span class="chip">Kotlin</span><span class="chip">SQL</span><span class="chip">JavaScript</span><span class="chip">Solidity</span></div></div>
+      <div class="card skill" style="--c:var(--lime)"><h4>mobile</h4><div class="chips">
+        <span class="chip">Android</span><span class="chip">MVVM</span><span class="chip">Retrofit</span><span class="chip">Room DB</span><span class="chip">Firebase</span><span class="chip">REST APIs</span></div></div>
+      <div class="card skill" style="--c:var(--violet)"><h4>QA &amp; data</h4><div class="chips">
+        <span class="chip">Automated QA Platforms</span><span class="chip">Data Validation</span><span class="chip">Pytest</span><span class="chip">Jupyter</span></div></div>
+      <div class="card skill" style="--c:var(--cyan)"><h4>dev tools</h4><div class="chips">
+        <span class="chip">Git &amp; GitHub</span><span class="chip">VS Code</span><span class="chip">Docker</span><span class="chip">CI/CD</span><span class="chip">GitHub Actions</span></div></div>
+      <div class="card skill" style="--c:var(--pink)"><h4>CS fundamentals</h4><div class="chips">
+        <span class="chip">Data Structures &amp; Algorithms</span><span class="chip">OOP</span><span class="chip">Complexity Analysis</span><span class="chip">System Design Basics</span></div></div>
+    </div>
+  </section>
+
+  <!-- EDUCATION + AWARDS -->
+  <section class="reveal" aria-label="Education and achievements">
+    <div class="duo">
+      <div class="card">
+        <p class="label">education</p>
+        <h3>Sri Krishna Institute of Technology</h3>
+        <p class="meta">B.E. Artificial Intelligence &amp; Machine Learning · 2022 – 2026 · Bangalore</p>
+        <div class="big">8.06</div><p class="meta" style="margin:6px 0 0">CGPA</p>
+      </div>
+      <div class="card">
+        <p class="label">achievements</p>
+        <div class="award"><div class="medal">🥉</div><div><b>3rd Place · AI4ComUnity Hackathon</b><span>Acharya Institutes · May 2025</span></div></div>
+        <div class="award"><div class="medal">⚡</div><div><b>Participant · HackSpark 2025</b><span>Sri Venkateshwara College of Engineering · May 2025</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact reveal">
+    <p class="label">05 · contact</p>
+    <h2>Let's build something <em>trustworthy</em>.</h2>
+    <p>I'm looking for roles in AI evaluation, ML engineering and software development. Whether it's a role, a project or a question about benchmarks, my inbox is open.</p>
+    <a class="mail" href="mailto:annuatther629@gmail.com">annuatther629@gmail.com</a>
+    <div class="socials">
+      <a class="btn" href="https://github.com/Aneesa-atther" target="_blank" rel="noopener">github ↗</a>
+      <a class="btn pink" href="mailto:annuatther629@gmail.com">email ↗</a>
+    </div>
+  </section>
+</main>
+
+<footer>designed &amp; built by <span>Aneesa Atther</span> · © <span id="yr">2026</span></footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* ---- neon synthwave grid ---- */
+  const cv = document.getElementById('grid'), ctx = cv.getContext('2d');
+  let W, H, dpr, t = 0;
+  const stars = Array.from({length: 90}, () => ({x: Math.random(), y: Math.random() * .55, r: Math.random() * 1.3 + .2, p: Math.random() * 6}));
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr;
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const hz = H * .62;                     // horizon
+    // stars
+    for (const s of stars) {
+      const a = .35 + .35 * Math.sin(t * .03 + s.p);
+      ctx.fillStyle = `rgba(220,230,255,${a})`;
+      ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r * dpr, 0, 7); ctx.fill();
+    }
+    // horizon glow
+    const g = ctx.createLinearGradient(0, hz - 140 * dpr, 0, hz + 10);
+    g.addColorStop(0, 'rgba(255,43,214,0)'); g.addColorStop(1, 'rgba(255,43,214,.18)');
+    ctx.fillStyle = g; ctx.fillRect(0, hz - 140 * dpr, W, 150 * dpr);
+    // vertical lines converging to vanishing point
+    ctx.lineWidth = 1 * dpr;
+    const cx = W / 2, n = 26;
+    for (let i = -n; i <= n; i++) {
+      const xb = cx + i * (W / n) * 1.6;
+      const a = .5 - Math.abs(i) / n * .4;
+      ctx.strokeStyle = `rgba(0,240,255,${a * .55})`;
+      ctx.beginPath(); ctx.moveTo(cx + i * 6 * dpr, hz); ctx.lineTo(xb, H); ctx.stroke();
+    }
+    // horizontal lines moving toward viewer
+    const speed = reduce ? 0 : (t * .006) % 1;
+    for (let k = 0; k < 18; k++) {
+      const z = (k + speed) / 18;           // 0 at horizon -> 1 at bottom
+      const y = hz + Math.pow(z, 2.2) * (H - hz);
+      ctx.strokeStyle = `rgba(255,43,214,${.12 + z * .5})`;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    // fade the grid into the page as you scroll
+    cv.style.opacity = Math.max(.25, 1 - scrollY / (innerHeight * 1.2));
+    t++;
+    if (!reduce) requestAnimationFrame(draw);
+  }
+  size(); draw(); addEventListener('resize', () => { size(); if (reduce) draw(); });
+
+  /* ---- cursor spotlight ---- */
+  const spot = document.getElementById('spot');
+  addEventListener('pointermove', e => { spot.style.left = e.clientX + 'px'; spot.style.top = e.clientY + 'px'; });
+
+  /* ---- typed roles ---- */
+  const roles = ['AI Trainer @ Handshake AI', 'LLM Evaluation & Benchmark Design', 'Reward-Hack Hunter', 'Android + GenAI Developer', 'B.E. in AI & Machine Learning'];
+  const el = document.getElementById('typed');
+  if (reduce) { el.textContent = roles[0]; } else {
+    let r = 0, i = 0, del = false;
+    (function tick() {
+      const w = roles[r];
+      el.textContent = w.slice(0, i);
+      if (!del && i === w.length) { del = true; return setTimeout(tick, 1600); }
+      if (del && i === 0) { del = false; r = (r + 1) % roles.length; }
+      i += del ? -1 : 1;
+      setTimeout(tick, del ? 28 : 62);
+    })();
+  }
+
+  /* ---- terminal: a verifier run on the candidate ---- */
+  const lines = [
+    ['<span class="t-p">$</span> lbvs run <span class="t-c">candidates/aneesa-atther.toml</span>', 380],
+    ['<span class="t-m">loading checklists: llm-eval, android, data-qa ...</span>', 260],
+    ['', 120],
+    ['<span class="t-l">✓</span> llm-evaluation      <span class="t-m">100+ prompts · 6 domains</span>', 230],
+    ['<span class="t-l">✓</span> reward-hack-hunting <span class="t-m">2 novel exploit cruxes</span>', 230],
+    ['<span class="t-l">✓</span> benchmark-design    <span class="t-m">solver-validated difficulty</span>', 230],
+    ['<span class="t-l">✓</span> data-quality        <span class="t-m">95%+ accuracy, daily</span>', 230],
+    ['<span class="t-l">✓</span> android-genai       <span class="t-m">Kotlin · MVVM · Gemini</span>', 230],
+    ['<span class="t-l">✓</span> hack-free           <span class="t-m">0 signals (obviously)</span>', 300],
+    ['', 120],
+    ['<span class="t-pass">PASS</span> <span class="t-w">score 1.00</span>  <span class="t-m">candidate:</span> <span class="t-c">aneesa-atther</span>', 300],
+    ['<span class="t-m">recommendation:</span> <span class="t-p">hire</span> <span class="t-l">▌</span>', 0],
+  ];
+  const term = document.getElementById('term');
+  if (reduce) { term.innerHTML = lines.map(l => l[0]).join('\n'); } else {
+    let k = 0;
+    (function next() {
+      if (k >= lines.length) return;
+      term.innerHTML += (k ? '\n' : '') + lines[k][0];
+      setTimeout(next, lines[k++][1]);
+    })();
+  }
+
+  /* ---- reveal on scroll + count-up ---- */
+  const count = el => {
+    const end = parseFloat(el.dataset.count), dec = +(el.dataset.dec || 0), suf = el.dataset.suffix || '';
+    if (reduce) { el.textContent = end.toFixed(dec) + suf; return; }
+    const t0 = performance.now(), dur = 1400;
+    (function step(now) {
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = (end * e).toFixed(dec) + suf;
+      if (p < 1) requestAnimationFrame(step);
+    })(t0);
+  };
+  const io = new IntersectionObserver(entries => entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    en.target.classList.add('in');
+    en.target.querySelectorAll('[data-count]').forEach(count);
+    io.unobserve(en.target);
+  }), {threshold: .05, rootMargin: "0px 0px -8% 0px"});
+  document.querySelectorAll('.reveal').forEach(s => io.observe(s));
+
+  /* ---- 3D tilt + glow follow on project cards ---- */
+  if (!reduce && matchMedia('(hover: hover)').matches) {
+    document.querySelectorAll('.proj').forEach(card => {
+      const inner = card.querySelector('.proj-in');
+      card.addEventListener('pointermove', e => {
+        const r = card.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        card.style.transform = `perspective(900px) rotateX(${(.5 - y) * 7}deg) rotateY(${(x - .5) * 9}deg) translateY(-4px)`;
+        inner.style.setProperty('--mx', x * 100 + '%'); inner.style.setProperty('--my', y * 100 + '%');
+      });
+      card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+    });
+  }
+})();
+</script>
+</body>
+</html>
